@@ -1,5 +1,7 @@
 #include "constants.h"
 #include "mekanik.h"
+#include "audio/hit_hurt.h"
+#include "audio/explode.h"
 
 Image ship;
 Image enemy;
@@ -26,6 +28,9 @@ void initialize() {
     ship.sprite.x = (SCREEN_WIDTH - ship.sprite.w) / 2;
     ship.sprite.y = SCREEN_HEIGHT - ship.sprite.h; // Bottom 
 
+    audioInit();
+    audioTransferVagToSPU((unsigned char *)hit_hurt, hit_hurt_size, SPU_0CH);
+    audioTransferVagToSPU((unsigned char *)explode, explode_size, SPU_1CH);
     scoreboard = createScoreboard();
     playerball.active = 0; // Initialize as inactive
 }
@@ -73,6 +78,8 @@ void update() {
     if (playerball.active && checkCollision(playerball, enemy)) {
         scoreboard.score++;
         playerball.active = 0; // Deactivate projectile
+        audioPlay(SPU_0CH); // Play audio on collision
+        audioPlay(SPU_1CH); // Play audio on collision
     }
     
     // Check if projectile is off-screen
